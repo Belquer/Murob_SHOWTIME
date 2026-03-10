@@ -3,15 +3,26 @@
  * @brief   ESP-NOW Receiver Node template for the Murob SHOWTIME distributed
  *          cyber-physical network.
  *
- * Flash this sketch to each of the 6 Receiver Nodes, changing only the
- * MY_NODE_ID constant to match the intended node number (1-6).
+ * ═══════════════════════════════════════════════════════════════════════════
+ *  HOW TO CONFIGURE THIS FILE FOR EACH PHYSICAL NODE
+ *  ──────────────────────────────────────────────────
+ *  Step 1 — Set MY_NODE_ID (line ~40) to the node number you are flashing
+ *           (1 through 6).
+ *
+ *  Step 2 — In the "Per-Node Pin Definitions" block below, find the
+ *           corresponding #elif branch and edit the pin numbers to match
+ *           your physical wiring for that node.
+ *
+ *  That is the only two-step change required per node.  The compiler will
+ *  automatically pick the correct set of pin constants for the chosen ID.
+ * ═══════════════════════════════════════════════════════════════════════════
  *
  * The node listens for ESP-NOW broadcast packets from the Gateway Sender,
  * checks whether the packet's `target_node` field matches its own ID, and
  * dispatches commands to the appropriate actuator subroutine.
  *
  * Actuator dispatch table:
- *   case 0  — Servo motor         (ESP32Servo library)
+ *   case 0  — Servo motor           (ESP32Servo library)
  *   case 1  — DC motor via H-Bridge (PWM + direction GPIO)
  *   case 2  — Solenoid              (millis()-based, no delay())
  *   case 3  — Stepper motor         (FastAccelStepper library)
@@ -20,9 +31,6 @@
  *   - ESP32 Arduino core (esp_now.h, WiFi.h)
  *   - ESP32Servo          https://github.com/madhephaestus/ESP32Servo
  *   - FastAccelStepper    https://github.com/gin66/FastAccelStepper
- *
- * Hardware pin assignments are defined in the "Pin Definitions" section
- * below — adjust them to match your physical wiring.
  */
 
 #include <Arduino.h>
@@ -31,35 +39,112 @@
 #include <ESP32Servo.h>
 #include <FastAccelStepper.h>
 
-// ---------------------------------------------------------------------------
-// Node Identity — change this value for each physical node (1-6)
-// ---------------------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════════════════
+//  STEP 1 — Set this to the node number you are currently flashing (1-6)
+// ═══════════════════════════════════════════════════════════════════════════
 static const uint8_t MY_NODE_ID = 1;
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  STEP 2 — Per-Node Pin Definitions
+//
+//  Each node has its own #elif branch.  Find the branch whose number matches
+//  MY_NODE_ID and replace the pin numbers with the GPIOs you have wired on
+//  that particular ESP32 board.  Every node's branch is shown here so the
+//  whole project's wiring plan is visible in one place.
+//
+//  ⚠  The values below are PLACEHOLDER defaults (all nodes start with the
+//     same numbers).  You MUST update each node's branch to reflect its
+//     actual physical wiring before flashing.
+//
+//  PIN REFERENCE (all nodes share the same actuator roles):
+//    PIN_SERVO      — Signal wire of the servo (any GPIO)
+//    PIN_MOTOR_ENA  — PWM-capable GPIO → H-Bridge ENA (speed)
+//    PIN_MOTOR_IN1  — GPIO → H-Bridge IN1 (direction bit 1)
+//    PIN_MOTOR_IN2  — GPIO → H-Bridge IN2 (direction bit 2)
+//    PIN_SOLENOID   — GPIO → solenoid driver gate / relay
+//    PIN_STEP       — GPIO → stepper driver STEP pulse
+//    PIN_DIR        — GPIO → stepper driver DIR
+//
+//  ESP32 GPIOs safe for general output: 4,5,13,14,16,17,18,19,21,22,23,25,26,27,32,33
+//  PWM-capable (LEDC): all of the above — prefer 25/26/32/33 for motor ENA.
+//  Avoid: 0,2,6-11,12,15,34-39 for output (strapping / input-only pins).
+// ═══════════════════════════════════════════════════════════════════════════
+
+#if   MY_NODE_ID == 1
+// ── Node 1 — update these values to match Node 1's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#elif MY_NODE_ID == 2
+// ── Node 2 — update these values to match Node 2's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#elif MY_NODE_ID == 3
+// ── Node 3 — update these values to match Node 3's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#elif MY_NODE_ID == 4
+// ── Node 4 — update these values to match Node 4's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#elif MY_NODE_ID == 5
+// ── Node 5 — update these values to match Node 5's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#elif MY_NODE_ID == 6
+// ── Node 6 — update these values to match Node 6's physical wiring ───────
+    #define PIN_SERVO       13
+    #define PIN_MOTOR_ENA   25   // must be PWM-capable
+    #define PIN_MOTOR_IN1   26
+    #define PIN_MOTOR_IN2   27
+    #define PIN_SOLENOID    14
+    #define PIN_STEP        18
+    #define PIN_DIR         19
+
+#else
+    #error "MY_NODE_ID must be a value between 1 and 6. Please set it at the top of this file."
+#endif
+
 // ---------------------------------------------------------------------------
-// Pin Definitions — adjust to match your physical wiring
+// Solenoid pulse width and DC motor speed scale — shared across all nodes
 // ---------------------------------------------------------------------------
 
-// Servo
-static const int PIN_SERVO       = 13;
-
-// DC Motor H-Bridge (e.g. L298N)
-static const int PIN_MOTOR_ENA   = 25;  // PWM-capable pin for speed
-static const int PIN_MOTOR_IN1   = 26;  // Direction bit 1
-static const int PIN_MOTOR_IN2   = 27;  // Direction bit 2
-
-// Solenoid
-static const int      PIN_SOLENOID      = 14;
-static const uint32_t SOLENOID_PULSE_MS = 50; // pulse width in milliseconds
+// How long the solenoid stays energised after a trigger (milliseconds)
+static const uint32_t SOLENOID_PULSE_MS = 50;
 
 // DC Motor speed — parameter_1 is mapped from [0, MAX_SPEED_VALUE] to PWM
 // [0, 255].  The upper bound mirrors the positive range of int16_t (32767) to
 // allow a future upgrade where speed arrives as a signed 16-bit value.
-static const int32_t  MAX_SPEED_VALUE   = 32767;
-
-// Stepper (step/dir driver, e.g. DRV8825 / A4988)
-static const int PIN_STEP        = 18;
-static const int PIN_DIR         = 19;
+static const int32_t MAX_SPEED_VALUE = 32767;
 
 // ---------------------------------------------------------------------------
 // Shared payload struct — must be byte-identical to the Gateway Sender.
